@@ -1,6 +1,6 @@
 # Virtual Event Registration Portal
 
-Full-stack event registration app inspired by the clean blue/navy visual language of TKT.GE.
+Full-stack event registration app inspired by the dark purple/navy visual language of TKT.GE Movies.
 
 ## Stack
 
