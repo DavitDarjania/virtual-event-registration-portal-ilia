@@ -18,6 +18,13 @@ export function Header({ currentUser, logout, theme, toggleTheme }) {
         Admin: [["/admin", "Admin"]]
       }[currentUser.role]
     : [];
+  const languageButtonClass = (item) =>
+    [
+      "min-h-[34px] rounded-[10px] px-3 font-black transition-all duration-200",
+      language === item
+        ? "bg-brand-purple text-white shadow-[0_8px_18px_rgba(97,60,133,0.24)]"
+        : "bg-transparent text-[var(--muted-text)] hover:text-[var(--text)]"
+    ].join(" ");
 
   return (
     <header className="site-header">
@@ -27,10 +34,13 @@ export function Header({ currentUser, logout, theme, toggleTheme }) {
           <span>Virtual Events</span>
         </button>
         <div className="header-actions">
-          <div className="language-switch" aria-label="Language switcher">
+          <div
+            className="inline-flex gap-1 rounded-[14px] border border-[var(--soft-border)] bg-[var(--surface)] p-1"
+            aria-label="Language switcher"
+          >
             {["EN", "KA"].map((item) => (
               <button
-                className={language === item ? "active" : ""}
+                className={languageButtonClass(item)}
                 key={item}
                 onClick={() => setLanguage(item)}
                 type="button"
