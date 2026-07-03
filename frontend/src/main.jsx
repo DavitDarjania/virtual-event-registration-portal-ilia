@@ -12,6 +12,7 @@ import { MyTicketsPage } from "./pages/MyTicketsPage";
 import { OrganizerDashboard } from "./pages/OrganizerDashboard";
 import { AdminPanel } from "./pages/AdminPanel";
 import { clearSession, getSessionUser, saveSession } from "./state/session";
+import { getTranslations } from "./i18n";
 import "./styles.css";
 
 function roleHome(user) {
@@ -45,6 +46,8 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem("portal-theme") || "dark");
+  const [language, setLanguage] = useState(() => localStorage.getItem("portal-language") || "EN");
+  const t = getTranslations(language);
   const navigate = useNavigate();
 
   const openEvent = useMemo(
@@ -89,6 +92,11 @@ function AppContent() {
     localStorage.setItem("portal-theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.lang = language === "KA" ? "ka" : "en";
+    localStorage.setItem("portal-language", language);
+  }, [language]);
+
   function handleAuth(session) {
     saveSession(session);
     setCurrentUser(session.user);
@@ -111,7 +119,10 @@ function AppContent() {
     <div className="app-shell">
       <Header
         currentUser={currentUser}
+        language={language}
         logout={logout}
+        setLanguage={setLanguage}
+        t={t}
         theme={theme}
         toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
       />
@@ -119,7 +130,7 @@ function AppContent() {
       <main>
         {!currentUser ? (
           <Routes>
-            <Route path="*" element={<AuthPage handleAuth={handleAuth} />} />
+            <Route path="*" element={<AuthPage handleAuth={handleAuth} t={t} />} />
           </Routes>
         ) : (
           <Routes>
@@ -128,7 +139,7 @@ function AppContent() {
               path="/events"
               element={(
                 <RoleRoute allowed={["User"]} currentUser={currentUser}>
-                  <EventsPage events={events} loading={loading} openEvent={openEvent} />
+                  <EventsPage events={events} loading={loading} openEvent={openEvent} t={t} />
                 </RoleRoute>
               )}
             />
@@ -177,7 +188,7 @@ function AppContent() {
           </Routes>
         )}
       </main>
-      <SiteFooter />
+      <SiteFooter t={t} />
     </div>
   );
 }

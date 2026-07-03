@@ -1394,33 +1394,34 @@ main {
   color: var(--muted-text);
 }
 
-.footer-grid {
+.footer-simple {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 24px;
-  padding: 28px 0;
+  align-items: center;
+  padding: 22px 0;
 }
 
-.footer-column {
-  display: grid;
-  align-content: start;
-  gap: 9px;
-}
-
-.footer-column h3 {
-  margin: 0 0 4px;
-  color: var(--text);
-  font-size: 16px;
-}
-
-.footer-column a {
+.footer-simple p {
+  max-width: 620px;
+  margin: 0;
   color: var(--muted-text);
-  font-size: 14px;
   font-weight: 700;
+}
+
+.footer-simple div {
+  display: grid;
+  gap: 6px;
+  text-align: right;
+}
+
+.footer-simple a {
+  color: var(--muted-text);
+  font-weight: 800;
   text-decoration: none;
 }
 
-.footer-column a:hover {
+.footer-simple a:hover {
   color: var(--primary-blue);
 }
 
@@ -1622,8 +1623,12 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .footer-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .footer-simple {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-simple div {
+    text-align: left;
   }
 
   .hero-band {
@@ -1709,10 +1714,6 @@ main {
   .faq-grid,
   .table-row {
     grid-template-columns: 1fr;
-  }
-
-  .footer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .app-promo {

@@ -7,15 +7,14 @@ function roleHome(user) {
   return { User: "/events", Organizer: "/organizer", Admin: "/admin" }[user.role] || "/";
 }
 
-export function Header({ currentUser, logout, theme, toggleTheme }) {
+export function Header({ currentUser, language, logout, setLanguage, t, theme, toggleTheme }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [language, setLanguage] = React.useState("EN");
   const nav = currentUser
     ? {
-        User: [["/events", "Events"], ["/my-tickets", "My tickets"]],
-        Organizer: [["/organizer", "Organizer"]],
-        Admin: [["/admin", "Admin"]]
+        User: [["/events", t.navEvents], ["/my-tickets", t.navTickets]],
+        Organizer: [["/organizer", t.navOrganizer]],
+        Admin: [["/admin", t.navAdmin]]
       }[currentUser.role]
     : [];
 
@@ -24,7 +23,7 @@ export function Header({ currentUser, logout, theme, toggleTheme }) {
       <div className="topbar">
         <button className="brand" onClick={() => navigate(roleHome(currentUser))} type="button">
           <span className="brand-mark">TKT</span>
-          <span>Virtual Events</span>
+          <span>{t.brand}</span>
         </button>
         <div className="header-actions">
           <div className="language-switch" aria-label="Language switcher">
