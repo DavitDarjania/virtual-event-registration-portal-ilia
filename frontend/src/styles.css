@@ -681,6 +681,31 @@ main {
   margin-bottom: 22px;
 }
 
+.event-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(360px, 100%);
+  min-height: 46px;
+  border: 1px solid var(--soft-border);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  color: var(--muted-text);
+  padding: 0 14px;
+}
+
+.event-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  outline: 0;
+}
+
+.event-search input::placeholder {
+  color: var(--muted-text);
+}
+
 .section-header h2,
 .form-title h2,
 .event-form h2 {
@@ -722,6 +747,9 @@ main {
 }
 
 .event-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
   border-radius: 16px;
   animation: cardIn 580ms var(--ease-out) both;
@@ -791,6 +819,9 @@ main {
 }
 
 .event-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 18px;
 }
 
@@ -817,6 +848,21 @@ main {
   line-height: 1.25;
 }
 
+.event-body h3,
+.event-body p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+
+.event-body h3 {
+  -webkit-line-clamp: 2;
+}
+
+.event-body p {
+  -webkit-line-clamp: 3;
+}
+
 .event-body p,
 .detail-panel p,
 .manage-card p,
@@ -829,6 +875,7 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
   margin-top: 18px;
   color: var(--muted-text);
   font-size: 13px;
@@ -878,6 +925,21 @@ main {
 .primary-button:disabled {
   cursor: not-allowed;
   background: var(--soft-border);
+}
+
+.event-card .primary-button {
+  width: fit-content;
+  margin-top: auto;
+}
+
+.empty-search {
+  border: 1px dashed var(--soft-border);
+  border-radius: 16px;
+  background: var(--surface-raised);
+  color: var(--muted-text);
+  padding: 28px;
+  text-align: center;
+  font-weight: 800;
 }
 
 .wide {
@@ -1399,7 +1461,7 @@ main {
   min-height: 44px;
   border-radius: 12px;
   background: var(--white);
-  color: var(--page-bg);
+  color: #181a31;
   padding: 0 18px;
   font-weight: 900;
 }
