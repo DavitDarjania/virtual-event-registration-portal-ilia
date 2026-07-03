@@ -38,13 +38,15 @@ export function AuthPage({ handleAuth }) {
   return (
     <section className="auth-layout">
       <div className="auth-copy">
-        <p className="eyebrow">Role based portal</p>
-        <h1>Choose your role before entering the event platform.</h1>
-        <p>Users register for events, organizers manage attendees, and admins oversee the platform.</p>
-        <div className="demo-row">
-          <button type="button" onClick={() => fillDemo("User")}>User demo</button>
-          <button type="button" onClick={() => fillDemo("Organizer")}>Organizer demo</button>
-          <button type="button" onClick={() => fillDemo("Admin")}>Admin demo</button>
+        <div className="auth-copy-content">
+          <p className="eyebrow">Role based portal</p>
+          <h1>Choose your role before entering the event platform.</h1>
+          <p>Users register for events, organizers manage attendees, and admins oversee the platform.</p>
+          <div className="demo-row">
+            <button type="button" onClick={() => fillDemo("User")}>User demo</button>
+            <button type="button" onClick={() => fillDemo("Organizer")}>Organizer demo</button>
+            <button type="button" onClick={() => fillDemo("Admin")}>Admin demo</button>
+          </div>
         </div>
       </div>
       <form className="auth-card" onSubmit={submit}>

@@ -10,6 +10,7 @@ function roleHome(user) {
 export function Header({ currentUser, logout }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [language, setLanguage] = React.useState("EN");
   const nav = currentUser
     ? {
         User: [["/events", "Events"], ["/my-tickets", "My tickets"]],
@@ -31,7 +32,18 @@ export function Header({ currentUser, logout }) {
             <span>{currentUser.fullName}</span>
           </button>
         ) : (
-          <button className="language-button" type="button">English</button>
+          <div className="language-switch" aria-label="Language switcher">
+            {["EN", "KA"].map((item) => (
+              <button
+                className={language === item ? "active" : ""}
+                key={item}
+                onClick={() => setLanguage(item)}
+                type="button"
+              >
+                {item === "EN" ? "English" : "ქართული"}
+              </button>
+            ))}
+          </div>
         )}
       </div>
       <nav className="nav-row compact" aria-label="Main navigation">

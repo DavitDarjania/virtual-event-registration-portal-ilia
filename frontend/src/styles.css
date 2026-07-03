@@ -154,6 +154,29 @@ main {
   padding: 0 14px;
 }
 
+.language-switch {
+  display: inline-flex;
+  gap: 4px;
+  border: 1px solid #303064;
+  border-radius: 14px;
+  background: #1f213e;
+  padding: 4px;
+}
+
+.language-switch button {
+  min-height: 34px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted-text);
+  padding: 0 12px;
+  font-weight: 850;
+}
+
+.language-switch button.active {
+  background: var(--primary-blue);
+  color: var(--white);
+}
+
 .nav-row {
   display: flex;
   align-items: center;
@@ -314,13 +337,20 @@ main {
   align-content: center;
   min-height: 560px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #1f213e, #181a31);
+  background:
+    linear-gradient(90deg, rgba(24, 26, 49, 0.94) 0%, rgba(24, 26, 49, 0.78) 54%, rgba(24, 26, 49, 0.5) 100%),
+    url("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80") center / cover;
   color: var(--white);
   padding: 52px;
   position: relative;
   isolation: isolate;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+}
+
+.auth-copy-content {
+  align-self: center;
+  max-width: 720px;
 }
 
 .auth-copy .eyebrow {
@@ -1468,6 +1498,12 @@ main {
 
   .language-button span {
     display: none;
+  }
+
+  .language-switch button {
+    min-height: 34px;
+    padding: 0 9px;
+    font-size: 13px;
   }
 
   .nav-row {
