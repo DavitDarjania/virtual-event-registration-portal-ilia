@@ -1,5 +1,5 @@
 import { API_URL } from "../constants";
-import { getSession } from "../state/session";
+import { clearSession, getSession } from "../state/session";
 
 export async function request(path, options = {}) {
   const session = getSession();
@@ -16,6 +16,9 @@ export async function request(path, options = {}) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: "Request failed" }));
+    if (response.status === 401) {
+      clearSession();
+    }
     throw new Error(error.message || "Request failed");
   }
 

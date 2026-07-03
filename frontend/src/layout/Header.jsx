@@ -1,66 +1,74 @@
 import React from "react";
-import { ClipboardList, LayoutDashboard, Search, ShieldCheck, Ticket } from "lucide-react";
-import { categoryLabels } from "../constants";
+import { ClipboardList, LayoutDashboard, LogOut, Moon, ShieldCheck, Sun, Ticket } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export function Header({ view, setView, currentUser, logout }) {
-  const showCategories = currentUser?.role === "User" && view === "events";
+function roleHome(user) {
+  if (!user) return "/";
+  return { User: "/events", Organizer: "/organizer", Admin: "/admin" }[user.role] || "/";
+}
+
+export function Header({ currentUser, language, logout, setLanguage, t, theme, toggleTheme }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const nav = currentUser
     ? {
-        User: [["events", "Events"], ["myTickets", "My tickets"]],
-        Organizer: [["organizer", "Organizer"]],
-        Admin: [["admin", "Admin"]]
+        User: [["/events", t.navEvents], ["/my-tickets", t.navTickets]],
+        Organizer: [["/organizer", t.navOrganizer]],
+        Admin: [["/admin", t.navAdmin]]
       }[currentUser.role]
     : [];
-  const homeView = currentUser
-    ? { User: "events", Organizer: "organizer", Admin: "admin" }[currentUser.role]
-    : "events";
 
   return (
     <header className="site-header">
       <div className="topbar">
-        <button className="brand" onClick={() => setView(homeView)} type="button">
+        <button className="brand" onClick={() => navigate(roleHome(currentUser))} type="button">
           <span className="brand-mark">TKT</span>
-          <span>Virtual Events</span>
+          <span>{t.brand}</span>
         </button>
-        <div className="search-box">
-          <Search size={18} />
-          <span>Search events, venues, tickets</span>
-        </div>
-        {currentUser ? (
-          <button className="language-button" onClick={logout} type="button">
-            {currentUser.role}: {currentUser.fullName}
-          </button>
-        ) : (
-          <button className="language-button" type="button">English</button>
-        )}
-      </div>
-      <nav className={showCategories ? "nav-row" : "nav-row compact"} aria-label="Main navigation">
-        {showCategories && (
-          <>
-            <button className="category-trigger" type="button">
-              <LayoutDashboard size={18} />
-              Categories
-            </button>
-            <div className="nav-categories">
-              {categoryLabels.slice(0, 10).map((category) => (
-                <button key={category} type="button">{category}</button>
-              ))}
-            </div>
-          </>
-        )}
-        {currentUser && (
-          <div className="role-nav">
-            {nav.map(([key, label]) => (
+        <div className="header-actions">
+          <div className="language-switch" aria-label="Language switcher">
+            {["EN", "KA"].map((item) => (
               <button
-                className={view === key ? "nav-pill active" : "nav-pill"}
-                key={key}
-                onClick={() => setView(key)}
+                className={language === item ? "active" : ""}
+                key={item}
+                onClick={() => setLanguage(item)}
                 type="button"
               >
-                {key === "events" && <Ticket size={18} />}
-                {key === "myTickets" && <ClipboardList size={18} />}
-                {key === "organizer" && <LayoutDashboard size={18} />}
-                {key === "admin" && <ShieldCheck size={18} />}
+                {item === "EN" ? "Eng" : "ქარ"}
+              </button>
+            ))}
+          </div>
+          <button
+            className={`theme-toggle ${theme === "light" ? "light" : ""}`}
+            onClick={toggleTheme}
+            type="button"
+            aria-label="Toggle color theme"
+          >
+            <span className="theme-icon sun"><Sun size={17} /></span>
+            <span className="theme-icon moon"><Moon size={17} /></span>
+          </button>
+          {currentUser && (
+            <button className="language-button" onClick={logout} type="button">
+              <LogOut size={17} />
+              <span>{currentUser.fullName}</span>
+            </button>
+          )}
+        </div>
+      </div>
+      <nav className="nav-row compact" aria-label="Main navigation">
+        {currentUser && (
+          <div className="role-nav">
+            {nav.map(([path, label]) => (
+              <button
+                className={location.pathname === path ? "nav-pill active" : "nav-pill"}
+                key={path}
+                onClick={() => navigate(path)}
+                type="button"
+              >
+                {path === "/events" && <Ticket size={18} />}
+                {path === "/my-tickets" && <ClipboardList size={18} />}
+                {path === "/organizer" && <LayoutDashboard size={18} />}
+                {path === "/admin" && <ShieldCheck size={18} />}
                 {label}
               </button>
             ))}

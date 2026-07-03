@@ -13,18 +13,3 @@ export const emptyEvent = {
   image: "",
   status: "draft"
 };
-
-export const categoryLabels = [
-  "Music/concert",
-  "Cinema",
-  "Railway",
-  "Transport",
-  "Theatre",
-  "Opera",
-  "Sport",
-  "Festival",
-  "Kids",
-  "Conference",
-  "Tourism",
-  "Museum"
-];

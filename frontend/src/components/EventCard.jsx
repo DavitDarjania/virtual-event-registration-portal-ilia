@@ -2,7 +2,7 @@ import React from "react";
 import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
 import { formatDate } from "../utils/date";
 
-export function EventCard({ event, openEvent }) {
+export function EventCard({ event, openEvent, t }) {
   return (
     <article className="event-card">
       <div className="event-image">
@@ -17,12 +17,12 @@ export function EventCard({ event, openEvent }) {
         <h3>{event.title}</h3>
         <p>{event.description}</p>
         <div className="capacity">
-          <span>{event.registered} registered</span>
-          <span>{event.remaining} left</span>
+          <span>{event.registered} {t.registered}</span>
+          <span>{event.remaining} {t.left}</span>
         </div>
         <div className="meter"><span style={{ width: `${Math.min((event.registered / event.ticketLimit) * 100, 100)}%` }} /></div>
         <button className="primary-button" onClick={() => openEvent(event.id)} type="button">
-          View details <ChevronRight size={18} />
+          {t.viewDetails} <ChevronRight size={18} />
         </button>
       </div>
     </article>
