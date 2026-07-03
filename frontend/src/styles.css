@@ -83,7 +83,7 @@ main {
 
 .topbar {
   display: grid;
-  grid-template-columns: auto minmax(240px, 460px) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 28px;
   padding: 24px 0;
@@ -113,27 +113,6 @@ main {
   box-shadow: 0 12px 26px rgba(97, 60, 133, 0.28);
 }
 
-.search-box,
-.input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 40px;
-  border: 1px solid var(--soft-border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--white);
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.site-header .search-box {
-  border-color: #303064;
-  background: #1f213e;
-  color: rgba(255, 255, 255, 0.78);
-}
-
 .input input,
 .ticket-lookup input,
 .register-form input,
@@ -149,15 +128,6 @@ main {
   padding: 12px 14px;
 }
 
-.input.with-icon {
-  min-width: 260px;
-}
-
-.input.with-icon input {
-  border: 0;
-  padding: 0;
-}
-
 .language-button,
 .nav-pill,
 .secondary-button,
@@ -170,14 +140,16 @@ main {
 }
 
 .site-header .language-button,
-.site-header .nav-pill,
-.site-header .category-trigger {
+.site-header .nav-pill {
   border-color: #303064;
   background: #1f213e;
   color: var(--white);
 }
 
 .language-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   height: 40px;
   padding: 0 14px;
 }
@@ -188,13 +160,13 @@ main {
   gap: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0 0 24px;
+  overflow-x: auto;
 }
 
 .nav-row.compact {
   justify-content: flex-start;
 }
 
-.category-trigger,
 .nav-pill {
   display: inline-flex;
   align-items: center;
@@ -221,38 +193,9 @@ main {
   transform: translateX(110%);
 }
 
-.category-trigger,
 .nav-pill.active,
 .nav-pill:hover {
   background: #613c85;
-  color: var(--white);
-}
-
-.category-trigger {
-  color: var(--white);
-}
-
-.nav-categories {
-  display: flex;
-  flex: 1;
-  gap: 6px;
-  overflow-x: auto;
-}
-
-.nav-categories button {
-  flex: 0 0 auto;
-  min-height: 40px;
-  border-radius: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.82);
-  padding: 0 10px;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.nav-categories button:hover,
-.nav-categories button:nth-child(4) {
-  background: rgba(255, 255, 255, 0.1);
   color: var(--white);
 }
 
@@ -261,11 +204,16 @@ main {
   gap: 8px;
   border-left: 1px solid rgba(255, 255, 255, 0.12);
   padding-left: 10px;
+  min-width: 0;
 }
 
 .nav-row.compact .role-nav {
   border-left: 0;
   padding-left: 0;
+}
+
+.role-nav .nav-pill {
+  flex: 0 0 auto;
 }
 
 .role-nav .nav-pill.active {
@@ -283,7 +231,6 @@ main {
 .page-section,
 .section-inner,
 .hero-band,
-.rail-section,
 .content-section,
 .ticket-section,
 .auth-layout,
@@ -479,65 +426,6 @@ main {
 .stat-label {
   color: var(--muted-text);
   font-weight: 700;
-}
-
-.rail-section {
-  display: grid;
-  gap: 16px;
-}
-
-.category-rail,
-.date-rail {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  border-radius: 18px;
-  background: transparent;
-  padding: 12px;
-  box-shadow: none;
-}
-
-.category-rail button {
-  flex: 0 0 auto;
-  min-height: 42px;
-  border-radius: 12px;
-  background: var(--light-bg);
-  color: var(--white);
-  padding: 0 16px;
-  font-weight: 850;
-}
-
-.category-rail button:first-child,
-.category-rail button:hover {
-  background: var(--primary-blue);
-  color: var(--white);
-}
-
-.date-rail button {
-  flex: 0 0 76px;
-  display: grid;
-  gap: 2px;
-  place-items: center;
-  min-height: 78px;
-  border-radius: 14px;
-  background: var(--light-bg);
-  color: var(--secondary-navy);
-}
-
-.date-rail button.active,
-.date-rail button:hover {
-  background: var(--primary-blue);
-  color: var(--white);
-}
-
-.date-rail span,
-.date-rail small {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.date-rail strong {
-  font-size: 22px;
 }
 
 .content-section,
@@ -1520,11 +1408,7 @@ main {
 
 @media (max-width: 980px) {
   .topbar {
-    grid-template-columns: 1fr auto;
-  }
-
-  .search-box {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .hero-band,
@@ -1578,21 +1462,30 @@ main {
   }
 
   .language-button {
+    min-width: 42px;
+    padding: 0 12px;
+  }
+
+  .language-button span {
     display: none;
   }
 
   .nav-row {
-    overflow-x: auto;
-  }
-
-  .nav-categories {
-    order: 3;
-    flex-basis: 100%;
+    padding-bottom: 14px;
   }
 
   .role-nav {
     border-left: 0;
     padding-left: 0;
+    width: 100%;
+  }
+
+  .role-nav .nav-pill {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 10px;
+    white-space: nowrap;
   }
 
   .section-header,

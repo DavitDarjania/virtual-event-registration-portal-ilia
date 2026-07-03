@@ -1,7 +1,6 @@
 import React from "react";
-import { ClipboardList, LayoutDashboard, Search, ShieldCheck, Ticket } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, ShieldCheck, Ticket } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { categoryLabels } from "../constants";
 
 function roleHome(user) {
   if (!user) return "/";
@@ -11,7 +10,6 @@ function roleHome(user) {
 export function Header({ currentUser, logout }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const showCategories = currentUser?.role === "User" && location.pathname === "/events";
   const nav = currentUser
     ? {
         User: [["/events", "Events"], ["/my-tickets", "My tickets"]],
@@ -27,32 +25,16 @@ export function Header({ currentUser, logout }) {
           <span className="brand-mark">TKT</span>
           <span>Virtual Events</span>
         </button>
-        <div className="search-box">
-          <Search size={18} />
-          <span>Search events, venues, tickets</span>
-        </div>
         {currentUser ? (
           <button className="language-button" onClick={logout} type="button">
-            {currentUser.role}: {currentUser.fullName}
+            <LogOut size={17} />
+            <span>{currentUser.fullName}</span>
           </button>
         ) : (
           <button className="language-button" type="button">English</button>
         )}
       </div>
-      <nav className={showCategories ? "nav-row" : "nav-row compact"} aria-label="Main navigation">
-        {showCategories && (
-          <>
-            <button className="category-trigger" type="button">
-              <LayoutDashboard size={18} />
-              Categories
-            </button>
-            <div className="nav-categories">
-              {categoryLabels.slice(0, 10).map((category) => (
-                <button key={category} type="button">{category}</button>
-              ))}
-            </div>
-          </>
-        )}
+      <nav className="nav-row compact" aria-label="Main navigation">
         {currentUser && (
           <div className="role-nav">
             {nav.map(([path, label]) => (
