@@ -1,11 +1,37 @@
-import { promises as fs } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dataDir = path.join(__dirname, "..", "data");
-const dataFile = path.join(dataDir, "db.json");
+const envFile = path.join(__dirname, "..", ".env");
+
+function loadEnv() {
+  if (!existsSync(envFile)) return;
+  const lines = readFileSync(envFile, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const [key, ...valueParts] = trimmed.split("=");
+    if (process.env[key]) continue;
+    process.env[key] = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
+  }
+}
+
+loadEnv();
+
+const mongoUri = process.env.MONGODB_KEY;
+const collectionOptions = { strict: false, versionKey: false };
+const userSchema = new mongoose.Schema({}, collectionOptions);
+const eventSchema = new mongoose.Schema({}, collectionOptions);
+const registrationSchema = new mongoose.Schema({}, collectionOptions);
+const sessionSchema = new mongoose.Schema({}, collectionOptions);
+
+const User = mongoose.models.User || mongoose.model("User", userSchema, "users");
+const Event = mongoose.models.Event || mongoose.model("Event", eventSchema, "events");
+const Registration = mongoose.models.Registration || mongoose.model("Registration", registrationSchema, "registrations");
+const Session = mongoose.models.Session || mongoose.model("Session", sessionSchema, "sessions");
 
 const seed = {
   users: [
@@ -88,52 +114,102 @@ const seed = {
     {
       id: "reg-demo-1",
       eventId: "evt-summit-2026",
-      fullName: "Nino Maisuradze",
+      fullName: "Demo User",
       userId: "user-1",
       email: "user@portal.test",
       ticketCode: "TKT-8F2KQ9",
       createdAt: "2026-05-10T11:20:00.000Z",
       checkedIn: false
     }
-  ]
+  ],
+  sessions: []
 };
 
-export async function readDb() {
-  try {
-    const content = await fs.readFile(dataFile, "utf8");
-    if (!content.trim()) {
-      await writeDb(seed);
-      return seed;
-    }
-    const db = JSON.parse(content);
-    if (!db.users) {
-      db.users = seed.users;
-    }
-    if (!db.sessions) db.sessions = [];
-    db.events = (db.events || []).map((event) => ({
-      ...event,
-      status: event.status || "published",
-      type: event.type || "Online"
-    }));
-    db.registrations = (db.registrations || []).map((registration) => ({
-      ...registration,
-      userId: registration.id === "reg-demo-1" ? "user-1" : registration.userId,
-      email: registration.id === "reg-demo-1" ? "user@portal.test" : registration.email,
-      fullName: registration.id === "reg-demo-1" ? "Demo User" : registration.fullName,
-      checkedIn: Boolean(registration.checkedIn)
-    }));
-    await writeDb(db);
-    return db;
-  } catch (error) {
-    if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) throw error;
-    await writeDb(seed);
-    return seed;
+function clean(doc) {
+  const value = doc?.toObject ? doc.toObject() : doc;
+  if (!value || typeof value !== "object") return value;
+  const { _id, __v, ...rest } = value;
+  return rest;
+}
+
+async function connectMongo() {
+  if (!mongoUri) {
+    throw new Error("MONGODB_KEY is missing. Add your Atlas connection string to backend/.env");
   }
+  if (mongoose.connection.readyState === 1) return;
+  await mongoose.connect(mongoUri, { dbName: process.env.MONGODB_DB || "virtual_event_registration" });
+}
+
+async function seedIfEmpty() {
+  const usersCount = await User.countDocuments();
+  if (usersCount > 0) return;
+  await Promise.all([
+    User.insertMany(seed.users),
+    Event.insertMany(seed.events),
+    Registration.insertMany(seed.registrations)
+  ]);
+}
+
+function normalizeDb(db) {
+  const next = {
+    users: db.users || [],
+    events: db.events || [],
+    registrations: db.registrations || [],
+    sessions: db.sessions || []
+  };
+
+  next.events = next.events.map((event) => ({
+    ...event,
+    status: event.status || "published",
+    type: event.type || "Online"
+  }));
+  next.registrations = next.registrations.map((registration) => ({
+    ...registration,
+    userId: registration.id === "reg-demo-1" ? "user-1" : registration.userId,
+    email: registration.id === "reg-demo-1" ? "user@portal.test" : registration.email,
+    fullName: registration.id === "reg-demo-1" ? "Demo User" : registration.fullName,
+    checkedIn: Boolean(registration.checkedIn)
+  }));
+
+  return next;
+}
+
+export async function readDb() {
+  await connectMongo();
+  await seedIfEmpty();
+
+  const [users, events, registrations, sessions] = await Promise.all([
+    User.find().lean(),
+    Event.find().lean(),
+    Registration.find().lean(),
+    Session.find().lean()
+  ]);
+
+  return normalizeDb({
+    users: users.map(clean),
+    events: events.map(clean),
+    registrations: registrations.map(clean),
+    sessions: sessions.map(clean)
+  });
 }
 
 export async function writeDb(db) {
-  await fs.mkdir(dataDir, { recursive: true });
-  await fs.writeFile(dataFile, JSON.stringify(db, null, 2));
+  await connectMongo();
+  const next = normalizeDb(db);
+
+  await Promise.all([
+    User.deleteMany({}),
+    Event.deleteMany({}),
+    Registration.deleteMany({}),
+    Session.deleteMany({})
+  ]);
+
+  await Promise.all([
+    next.users.length ? User.insertMany(next.users) : Promise.resolve(),
+    next.events.length ? Event.insertMany(next.events) : Promise.resolve(),
+    next.registrations.length ? Registration.insertMany(next.registrations) : Promise.resolve(),
+    next.sessions.length ? Session.insertMany(next.sessions) : Promise.resolve()
+  ]);
 }
 
 export function withCounts(events, registrations) {
