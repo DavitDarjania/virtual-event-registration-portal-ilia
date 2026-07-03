@@ -4,7 +4,7 @@ import { CalendarDays, MapPin, Ticket } from "lucide-react";
 import { request } from "../api/request";
 import { formatDate } from "../utils/date";
 
-export function TicketPage({ ticketCode, setView }) {
+export function TicketPage({ ticketCode, onBack }) {
   const [ticket, setTicket] = useState(null);
   const [lookup, setLookup] = useState(ticketCode);
   const [error, setError] = useState("");
@@ -48,7 +48,7 @@ export function TicketPage({ ticketCode, setView }) {
           <div className="ticket-code"><Ticket size={36} /><strong>{ticket.registration.ticketCode}</strong><span>Show this code at check-in</span></div>
         </div>
       )}
-      <button className="secondary-button" onClick={() => setView("events")} type="button">Back to events</button>
+      <button className="secondary-button" onClick={onBack} type="button">Back to events</button>
     </section>
   );
 }

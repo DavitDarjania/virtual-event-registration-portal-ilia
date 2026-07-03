@@ -1,24 +1,29 @@
 import React from "react";
 import { ClipboardList, LayoutDashboard, Search, ShieldCheck, Ticket } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { categoryLabels } from "../constants";
 
-export function Header({ view, setView, currentUser, logout }) {
-  const showCategories = currentUser?.role === "User" && view === "events";
+function roleHome(user) {
+  if (!user) return "/";
+  return { User: "/events", Organizer: "/organizer", Admin: "/admin" }[user.role] || "/";
+}
+
+export function Header({ currentUser, logout }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const showCategories = currentUser?.role === "User" && location.pathname === "/events";
   const nav = currentUser
     ? {
-        User: [["events", "Events"], ["myTickets", "My tickets"]],
-        Organizer: [["organizer", "Organizer"]],
-        Admin: [["admin", "Admin"]]
+        User: [["/events", "Events"], ["/my-tickets", "My tickets"]],
+        Organizer: [["/organizer", "Organizer"]],
+        Admin: [["/admin", "Admin"]]
       }[currentUser.role]
     : [];
-  const homeView = currentUser
-    ? { User: "events", Organizer: "organizer", Admin: "admin" }[currentUser.role]
-    : "events";
 
   return (
     <header className="site-header">
       <div className="topbar">
-        <button className="brand" onClick={() => setView(homeView)} type="button">
+        <button className="brand" onClick={() => navigate(roleHome(currentUser))} type="button">
           <span className="brand-mark">TKT</span>
           <span>Virtual Events</span>
         </button>
@@ -50,17 +55,17 @@ export function Header({ view, setView, currentUser, logout }) {
         )}
         {currentUser && (
           <div className="role-nav">
-            {nav.map(([key, label]) => (
+            {nav.map(([path, label]) => (
               <button
-                className={view === key ? "nav-pill active" : "nav-pill"}
-                key={key}
-                onClick={() => setView(key)}
+                className={location.pathname === path ? "nav-pill active" : "nav-pill"}
+                key={path}
+                onClick={() => navigate(path)}
                 type="button"
               >
-                {key === "events" && <Ticket size={18} />}
-                {key === "myTickets" && <ClipboardList size={18} />}
-                {key === "organizer" && <LayoutDashboard size={18} />}
-                {key === "admin" && <ShieldCheck size={18} />}
+                {path === "/events" && <Ticket size={18} />}
+                {path === "/my-tickets" && <ClipboardList size={18} />}
+                {path === "/organizer" && <LayoutDashboard size={18} />}
+                {path === "/admin" && <ShieldCheck size={18} />}
                 {label}
               </button>
             ))}
