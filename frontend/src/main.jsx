@@ -44,6 +44,7 @@ function AppContent() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
+  const [theme, setTheme] = useState(() => localStorage.getItem("portal-theme") || "dark");
   const navigate = useNavigate();
 
   const openEvent = useMemo(
@@ -83,6 +84,11 @@ function AppContent() {
     });
   }, [currentUser?.role]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("portal-theme", theme);
+  }, [theme]);
+
   function handleAuth(session) {
     saveSession(session);
     setCurrentUser(session.user);
@@ -103,7 +109,12 @@ function AppContent() {
 
   return (
     <div className="app-shell">
-      <Header currentUser={currentUser} logout={logout} />
+      <Header
+        currentUser={currentUser}
+        logout={logout}
+        theme={theme}
+        toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
+      />
       {notice && <div className="toast">{notice}</div>}
       <main>
         {!currentUser ? (
