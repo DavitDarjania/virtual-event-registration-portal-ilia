@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,10 +23,10 @@ function loadEnv() {
 loadEnv();
 
 const mongoUri = process.env.MONGODB_KEY;
-const collectionOptions = { strict: false, versionKey: false };
-const userSchema = new mongoose.Schema({}, collectionOptions);
-const eventSchema = new mongoose.Schema({}, collectionOptions);
-const registrationSchema = new mongoose.Schema({}, collectionOptions);
+const collectionOptions = { strict: false, versionKey: false, id: false };
+const userSchema = new mongoose.Schema({ id: String }, collectionOptions);
+const eventSchema = new mongoose.Schema({ id: String }, collectionOptions);
+const registrationSchema = new mongoose.Schema({ id: String }, collectionOptions);
 const sessionSchema = new mongoose.Schema({}, collectionOptions);
 
 const User = mongoose.models.User || mongoose.model("User", userSchema, "users");
@@ -132,6 +133,31 @@ function clean(doc) {
   return rest;
 }
 
+function fallbackUserId(user) {
+  const byEmail = {
+    "admin@portal.test": "admin-1",
+    "organizer@portal.test": "org-1",
+    "user@portal.test": "user-1"
+  };
+  return byEmail[String(user.email || "").toLowerCase()] || crypto.randomUUID();
+}
+
+function fallbackEventId(event) {
+  const byTitle = {
+    "Tbilisi Digital Growth Summit": "evt-summit-2026",
+    "React Live Bootcamp": "evt-react-bootcamp",
+    "Product Leaders Night": "evt-product-night"
+  };
+  return byTitle[event.title] || crypto.randomUUID();
+}
+
+function fallbackRegistrationId(registration) {
+  const byTicket = {
+    "TKT-8F2KQ9": "reg-demo-1"
+  };
+  return byTicket[registration.ticketCode] || crypto.randomUUID();
+}
+
 async function connectMongo() {
   if (!mongoUri) {
     throw new Error("MONGODB_KEY is missing. Add your Atlas connection string to backend/.env");
@@ -160,43 +186,28 @@ function normalizeDb(db) {
 
   next.events = next.events.map((event) => ({
     ...event,
+    id: event.id || fallbackEventId(event),
     status: event.status || "published",
     type: event.type || "Online"
   }));
+  next.users = next.users.map((user) => ({
+    ...user,
+    id: user.id || fallbackUserId(user)
+  }));
   next.registrations = next.registrations.map((registration) => ({
     ...registration,
+    id: registration.id || fallbackRegistrationId(registration),
     userId: registration.id === "reg-demo-1" ? "user-1" : registration.userId,
     email: registration.id === "reg-demo-1" ? "user@portal.test" : registration.email,
     fullName: registration.id === "reg-demo-1" ? "Demo User" : registration.fullName,
     checkedIn: Boolean(registration.checkedIn)
   }));
+  next.sessions = next.sessions.filter((session) => session.token && session.userId);
 
   return next;
 }
 
-export async function readDb() {
-  await connectMongo();
-  await seedIfEmpty();
-
-  const [users, events, registrations, sessions] = await Promise.all([
-    User.find().lean(),
-    Event.find().lean(),
-    Registration.find().lean(),
-    Session.find().lean()
-  ]);
-
-  return normalizeDb({
-    users: users.map(clean),
-    events: events.map(clean),
-    registrations: registrations.map(clean),
-    sessions: sessions.map(clean)
-  });
-}
-
-export async function writeDb(db) {
-  await connectMongo();
-  const next = normalizeDb(db);
-
+async function replaceDb(next) {
   await Promise.all([
     User.deleteMany({}),
     Event.deleteMany({}),
@@ -210,6 +221,37 @@ export async function writeDb(db) {
     next.registrations.length ? Registration.insertMany(next.registrations) : Promise.resolve(),
     next.sessions.length ? Session.insertMany(next.sessions) : Promise.resolve()
   ]);
+}
+
+export async function readDb() {
+  await connectMongo();
+  await seedIfEmpty();
+
+  const [users, events, registrations, sessions] = await Promise.all([
+    User.find().lean(),
+    Event.find().lean(),
+    Registration.find().lean(),
+    Session.find().lean()
+  ]);
+
+  const raw = {
+    users: users.map(clean),
+    events: events.map(clean),
+    registrations: registrations.map(clean),
+    sessions: sessions.map(clean)
+  };
+  const normalized = normalizeDb(raw);
+  if (JSON.stringify(normalized) !== JSON.stringify(raw)) {
+    await replaceDb(normalized);
+  }
+
+  return normalized;
+}
+
+export async function writeDb(db) {
+  await connectMongo();
+  const next = normalizeDb(db);
+  await replaceDb(next);
 }
 
 export function withCounts(events, registrations) {
