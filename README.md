@@ -6,9 +6,9 @@ Full-stack event registration app inspired by the dark purple/navy visual langua
 
 - Frontend: React + Vite
 - Backend: Express.js REST API
-- Storage: local JSON file at `backend/data/db.json`
+- Database: MongoDB Atlas through Mongoose
 
-MongoDB is not required for the first version. The backend has a small data layer, so it can be replaced with MongoDB later without changing the frontend API.
+The backend reads `MONGODB_KEY` from `backend/.env` and seeds demo users/events into MongoDB when the users collection is empty.
 
 ## Features
 
@@ -41,6 +41,13 @@ Install dependencies:
 ```bash
 npm install
 npm run install:all
+```
+
+Create `backend/.env`:
+
+```bash
+MONGODB_KEY=mongodb+srv://<username>:<password>@<cluster-url>/<database-name>
+MONGODB_DB=virtual_event_registration
 ```
 
 Start both apps:
